@@ -275,7 +275,7 @@ func getReturnSec(webSecSocketkey string) string {
 上面的話， 就是 websocket 的 upgrade 升級連線了, 篇幅太長, 下一篇繼續講傳送訊息
 
 ## References
-[build-a-simple-ws-from-scratch-in-ruby](https://www.honeybadger.io/blog/building-a-simple-websockets-server-from-scratch-in-ruby/)
+1. [build-a-simple-ws-from-scratch-in-ruby](https://www.honeybadger.io/blog/building-a-simple-websockets-server-from-scratch-in-ruby/)
 
-還有一篇記得是 [雷N's Blog](https://tedmax100.github.io/)看到的, 但突然找不到, 找到再補上來
+2. 還有一篇記得是 [雷N's Blog](https://tedmax100.github.io/)看到的, 但突然找不到, 找到再補上來
 
