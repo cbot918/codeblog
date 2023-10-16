@@ -1,21 +1,22 @@
 ---
 layout: post
-title:  (筆記) TCP 和 Websocket in golang
-date:   2023-10-02 22:10:00 +0800
-image:  02.jpg
-tags:   Resources
+title: (筆記) TCP 和 Websocket in golang
+date: 2023-10-02 22:10:00 +0800
+image: 02.jpg
+tags: Resources
 ---
 
-分享一下 Golang 的 TCP 跟 Websocket 
+分享一下 Golang 的 TCP 跟 Websocket
 
 go 想要用 tcp connection 的功能需要 [net](https://pkg.go.dev/net)函式庫, 負責去跟作業系統溝通, 創建 connection, 一般簡稱 conn, conn 是 file descriptor 的實作, 所以可以 Read / Write / Close
-
 
 ### [程式碼](https://github.com/cbot918/blogcodes/tree/main/tcp-and-ws)
 
 ## Simple TCP
+
 以下是簡單的 tcp server 及 client 程式碼
 server.go
+
 ```go
 package main
 
@@ -74,8 +75,8 @@ func main() {
 
 ```
 
-
 client.go
+
 ```go
 package main
 
@@ -102,7 +103,7 @@ func main() {
 		go runClient(i)
 	}
 
-	
+
 	select {} // 要有這行程式才正常執行
 }
 
@@ -125,56 +126,54 @@ func runClient(number int) {
 
 ```
 
-
 ## Websocket
 
 websocket 我們先看 client 端
 index.html
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ws</title>
-</head>
-<body>
-  
-  <script>
-		// 其實主要是這一行, 位置正確就會發出一個 http 請求, 裡面會帶著連線需要的資訊
-		// Sec-WebSocket-Key 是一個字串, 伺服器端需要用這個字串做一些編碼的工作 再傳回來完成連線升級
-		// 就是從 HTTP 連線 變成 Websocket 連線
-    const ws = new WebSocket("ws://localhost:8889")
-    
-		ws.onopen = () => {
-			// 監聽連線
-      console.log("socket connected")
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ws</title>
+  </head>
+  <body>
+    <script>
+      // 其實主要是這一行, 位置正確就會發出一個 http 請求, 裡面會帶著連線需要的資訊
+      // Sec-WebSocket-Key 是一個字串, 伺服器端需要用這個字串做一些編碼的工作 再傳回來完成連線升級
+      // 就是從 HTTP 連線 變成 Websocket 連線
+      const ws = new WebSocket("ws://localhost:8889");
 
-    ws.onmessage = (data) => {
-      // 監聽訊息
-			console.log(data)
-    }
+      ws.onopen = () => {
+        // 監聽連線
+        console.log("socket connected");
+      };
 
-    ws.onerror = (e) => {
-			// 監聽錯誤, 方便除錯 (但我目前看不太懂)
-      console.log("socket error")
-      console.log(error)
-    }
+      ws.onmessage = (data) => {
+        // 監聽訊息
+        console.log(data);
+      };
 
-    ws.onclose = () => {
-			// 監聽連線關閉
-      console.log("socket close")
-    }
+      ws.onerror = (e) => {
+        // 監聽錯誤, 方便除錯 (但我目前看不太懂)
+        console.log("socket error");
+        console.log(error);
+      };
 
-  </script>
-
-</body>
+      ws.onclose = () => {
+        // 監聽連線關閉
+        console.log("socket close");
+      };
+    </script>
+  </body>
 </html>
 ```
 
 接著看 server 端
 main.go
+
 ```go
 package main
 
@@ -231,7 +230,7 @@ func handleConnection(conn net.Conn) {
 		}
 		// 這邊做個 log 比較容易了解情況, 可以看到 http request 的內容
 		data := buf[:n]
-		fmt.Println(string(buf[:n]))  
+		fmt.Println(string(buf[:n]))
 
 		// 升級連線的核心函式
 		// 其實滿容易理解的, 把 Sec-WebSocket-Key 的值抓出來存到 key 裡面
@@ -275,7 +274,5 @@ func getReturnSec(webSecSocketkey string) string {
 上面的話， 就是 websocket 的 upgrade 升級連線了, 篇幅太長, 下一篇繼續講傳送訊息
 
 ## References
+
 1. [build-a-simple-ws-from-scratch-in-ruby](https://www.honeybadger.io/blog/building-a-simple-websockets-server-from-scratch-in-ruby/)
-
-2. 還有一篇記得是 [雷N's Blog](https://tedmax100.github.io/)看到的, 但突然找不到, 找到再補上來
-
