@@ -1,278 +1,84 @@
 ---
 layout: post
-title: (筆記) TCP 和 Websocket in golang
-date: 2023-10-02 22:10:00 +0800
+title: (討論) 寫履歷的觀念
+date: 2023-10-17 05:10:00 +0800
 image: 02.jpg
 tags: Resources
 ---
 
-分享一下 Golang 的 TCP 跟 Websocket
+自己轉職以來兩年, 除了自己的履歷, 也經歷過幫幾位同伴看過履歷, 有一點小小的心得, 沒有很完整的心得結論, 但可以當作沒有方向實的一點參考
 
-go 想要用 tcp connection 的功能需要 [net](https://pkg.go.dev/net)函式庫, 負責去跟作業系統溝通, 創建 connection, 一般簡稱 conn, conn 是 file descriptor 的實作, 所以可以 Read / Write / Close
+結論：
 
-### [程式碼](https://github.com/cbot918/blogcodes/tree/main/tcp-and-ws)
+1. 轉職履歷注重作品強度/個人技術特點
+2. 跳槽履歷注重前公司名氣/及項目亮點
 
-## Simple TCP
+## 轉職履歷
 
-以下是簡單的 tcp server 及 client 程式碼
-server.go
+### 1. 履歷內容
 
-```go
-package main
+文字通順簡潔, 不需要的資訊不要提供, 這部份作為基本, 就不在這邊贅述, 通常需要有人直接幫忙順文字以及把不需要/缺少的部份幫忙修改上去(也可以直接找我).
 
-import (
-	"fmt"
-	"io"
-	"log"
-	"net"
-)
+通常 104 或是 cakeresume 履歷會有很多區塊, 有個個人的實驗心得, 把自己吃香的區塊往上調整.
 
-const (
-	network = "tcp"
-	port    = ":8888"
-)
+這邊用英文履歷來舉例, 中文履歷也是同一個邏輯思考
 
-func main() {
-  // 監聽 localhost:8888
-	fmt.Println("listening ", port)
-	listener, err := net.Listen(network, port)
-	if err != nil {
-		log.Fatal(err)
-	}
+英文履歷有四大區塊
 
-  // 起個 infinite loop 去 Accept 連線
-	for {
-    // Accept 會 block
-    // 回傳的 conn, 就是 socket fd, 可以 Read, Write, Close
-		conn, err := listener.Accept()
-		if err != nil {
-			fmt.Println("connect failed")
-			fmt.Println(err)
-			return
-		}
+1. 學歷
+2. 經歷
+3. 作品
+4. 特殊表現
 
-    // 每個連線進來起一個 goroutine 去處理
-		go func(conn net.Conn) {
-			fmt.Println(conn) 							// 印出連線看一下
-			buf := make([]byte, 1024) 			// 讀取用的 buffer
-			for { 													// 持續讀取 socket 來的東西
-				n, err := conn.Read(buf) 			// 讀資料, Read 也會 block
-				if err != nil {
-					if err == io.EOF { 					// client 主動結束會發送 EOF過來, 那就印出來
-						fmt.Println("client disconnected")
-						break
-					}
-					fmt.Println(err)
-				}
-				fmt.Println(string(buf[:n])) 	// 將client來的訊息印出
-			}
-		}(conn)
+這四大區塊, 會有自己的強項跟弱項, 要把強項往上放, 弱項往下擺, 這邊主要是因為大家在看履歷從上往下, 第一印象會往下疊加, 曾經看過幾位朋友履歷, 由於把亮點放在最下面, 其實上往下滑的過程之中, 還沒看到亮點, 心中就大概有決定了, 私心以為如果把版塊調整過, 觀看的人會是另一種心情, 機會大不同！
 
-	}
+自己在設計這份英文履歷的時候, 就因為自己學歷及經歷不吃香( 轉職之前做過教師及行銷, 雖然是本科但是沒有畢業 ), 但因為在轉職期間做了大量準備 (2 個上線的 project clone), 然後做了很多技術的 hello world (當時能力也只能做到這樣 xD) 起碼會用能動, 所以我把 上面第 4 項特殊表現, 換成技術線 (畢竟沒有特殊表現 QAQ), 最後我履歷呈現的是
 
-}
+1. 技術線
+2. 作品
+3. 學歷
+4. 經歷
 
+因為我不是應屆畢業, 我也希望看履歷的人可以更重視我的技術能力(也算暗示我自己對技術比較有自信？), 其實轉職的人哪有真正的技術能力, 但我認為我相對於其他轉職履歷, 會看起來「相對」好一些, 就達成目的了. 接著看到作品環節, 就希望對方能對我有一個不錯的印象, 接下來學歷跟經歷就算不加分甚至扣分, 其實對他想用我的決定影響已經比較不大了！
 
-```
+### 2. 轉職準備方向概念
 
-client.go
+這邊針對「code camp」以及「自學」兩種狀況來討論
 
-```go
-package main
+#### `code camp`
 
-import (
-	"fmt"
-	"log"
-	"net"
-	"time"
-)
+在補習期間, 通常會有大量知識灌注到腦袋裡, 並且期末會有一個「團隊」專案,
 
-const (
-	network = "tcp"
-	port    = ":8888" 				// 接到 server 的 port
-	wait    = 3 * time.Second // 等 3 秒, 不然訊息會刷太快
-	users   = 5 							// 5個使用者建立 socket 連線
-)
+大量知識灌注： 這邊會比較建議, 在結訓之後, 花一點點(甚至幾天也好)時間消化吸收, 整理 code 或筆記, 把知識內化, 畢竟對工程師能夠整理歸納知識, 應該是基本且對未來持續學習吸收也很有幫助.
 
-func main() {
+「團隊」專案： 個人覺得這是一把雙面刃, 如果應徵的企業對補習班的品牌是有信任感(像是有些公司有跟一些補習班合作), 看到團隊專案可能會有以下印象. 「訓練到團隊合作」「訓練到軟體架構」「訓練到開發流程」「可能對象可以 trace 整個專案的 code」, 這樣看起來是加分項. 但反過來說, 像我自己在幫忙 review 的時候, 會覺得專案很大很好, 但確實很難確定候選人到底 1. 做哪部份 2. 會到哪裡, 甚至會推測自己如果常常經歷這樣的過程, 應該看到團隊專案會先刷掉.
 
-	fmt.Printf("launch %d users", users)
+個人心中的解決方案:
 
-	// 迴圈將 goroutine 發出去
-	for i := 0; i < users; i++ {
-		go runClient(i)
-	}
+上面提出了兩個問題, 大量知識須沈澱, 團隊專案可能很好, 但如果在履歷及應答技巧不熟練的時候, 遇到雙面刃的反面類型面試官, 比較吃虧, 所以提出了一個方式「重構/重寫專案」
 
+解法 1. 重構專案：因為對團隊專案有一定的熟悉程度, 可以透過重構自己的部份, 讓面試被問的時候不會被問倒, 並且增加對專案掌握度, 以達到說服用人主管的目的, 這個方式記得, 盡量還是要做佈署, 畢竟優勢能多一些還是盡量多一些, 佈署推薦[台灣人的 SAAS 雲 Zeabur](https://zeabur.com/), 簡單好用, 個人的不二選擇！
 
-	select {} // 要有這行程式才正常執行
-}
+解法 2. 重寫專案：因為整個專案太大, 掌握度不夠, 心中又有不錯的專案業務邏輯想法, 那也可以選擇直接重寫(個人是真的做不到這點), 但確實遇過朋友是想這樣做的, 那就可以這樣做, 反正在自己真正動手做的過程(但這邊的雷區就是遇到問題卡太久), 才是軟體工程師真正開始進步的時候, 雷區的問題推薦可以加加我的 綿羊程式群, 有問題直接問, 不要被卡太久, 才能快速進步.
 
-func runClient(number int) {
-	// 連線的函式, client 直接 dial 就會回傳 conn, aka socket fd了
-	conn, err := net.Dial(network, port)
-	if err != nil {
-		log.Fatal(err)
-	}
+其實講了以上兩個解法, 我覺得都繁瑣且成本不低, 所以還是要跟轉職的朋友打氣說一聲加油, 過程艱辛痛苦, 但最後的果實不會騙人！
 
-	for {
-		message := fmt.Sprintf("hello from user %d", number)
-		_, err = conn.Write([]byte(message))				// write 的寫法
-		if err != nil {
-			log.Fatal(err)
-		}
-		time.Sleep(wait)
-	}
-}
+`自學`
 
-```
+接下來分享自己轉職的方法, 也是自己想推廣的自學方式！ Project Clone 是在歐美相對流行的方式, 尤其不知道為什麼印度人特別喜歡這種方式, 所以有一個英文聽力門檻(真是有一好沒兩好), 或者可以看對岸的影片, 也會有 project clone 的影片可以做
 
-## Websocket
+一個完整的 project clone 在遇到問題的時候, 可以很痛苦, 因為有可能卡住就...真的沒了, 所以要找有提供原始碼的 project clone. 個人第一個 project clone 找了個 [第一個 MERN](https://www.youtube.com/watch?v=8BqA5DQp0j4&list=PLB97yPrFwo5g0FQr4rqImKa55F_aPiQWk) 比較大的, 學的時候一臉矇, 做了一頁又一頁的筆記, 所以在起始階段, 真的就是蝦子摸像！但做完這個過程, 也會覺得自己有很大的提昇.
 
-websocket 我們先看 client 端
-index.html
+有這個專案之後, 我又如法泡製做了[第二個 MERN](https://www.youtube.com/watch?v=iRaelG7v0OU), 接著做了兩三個 純 UI 的 project clone, 到此, 我對開發有一個基本印象, 但還是一堆技術關鍵字不會, 例如 「webpack」「redux」等等等等, 所以開始 hello world 時期, 就是對各種技術開始練習！
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ws</title>
-  </head>
-  <body>
-    <script>
-      // 其實主要是這一行, 位置正確就會發出一個 http 請求, 裡面會帶著連線需要的資訊
-      // Sec-WebSocket-Key 是一個字串, 伺服器端需要用這個字串做一些編碼的工作 再傳回來完成連線升級
-      // 就是從 HTTP 連線 變成 Websocket 連線
-      const ws = new WebSocket("ws://localhost:8889");
+上面過程講的看起來不複雜, 可是實際做起來是非常混亂的, 甚至會伴隨焦慮, 所以前面提到的「整理沈澱」知識就特別重要, 個人推薦自己的方式`「拿一張A4紙」`用紙筆在紙上把想法寫下來, 畫一點圖或是條列式釐清自己思緒, 統整腦袋的想法, 並做化繁為簡做出簡單明確的結論 (其實這也很需要練習, 第一次接觸不用因為不熟悉兒焦慮, 自己也是練習了很久)
 
-      ws.onopen = () => {
-        // 監聽連線
-        console.log("socket connected");
-      };
+`自學方式改善進化`
 
-      ws.onmessage = (data) => {
-        // 監聽訊息
-        console.log(data);
-      };
+其實上面的自學效率, 以自己目前兩年工程師及自學經驗, 認為效率其實不是最高(可行但太累且需要的資訊太多), 這邊推薦一下自己目前的想法
 
-      ws.onerror = (e) => {
-        // 監聽錯誤, 方便除錯 (但我目前看不太懂)
-        console.log("socket error");
-        console.log(error);
-      };
+前後端完全拆開學習(主要想敘述後端部份)
 
-      ws.onclose = () => {
-        // 監聽連線關閉
-        console.log("socket close");
-      };
-    </script>
-  </body>
-</html>
-```
+前端：就專注在前端, 練好練滿, 基本的不要練重複就不另外詳述 (就是例如會了 Material UI, 就不要再花時間做重複的 bootstrap)
 
-接著看 server 端
-main.go
-
-```go
-package main
-
-import (
-	"crypto/sha1"
-	"encoding/base64"
-	"fmt"
-	"io"
-	"log"
-	"net"
-	"regexp"
-	"strings"
-)
-
-const (
-	network = "tcp"
-	port    = "localhost:8889"
-)
-
-func main() {
-	fmt.Println("listeninging: ", port)
-	listener, err := net.Listen(network, port)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			log.Fatal(conn)
-		}
-
-		// tcp 連線主體都差不多, 這邊的 handleConnection 把他拉出去寫function, 比較容讀
-		go handleConnection(conn)
-
-	}
-
-}
-
-func handleConnection(conn net.Conn) {
-	defer conn.Close()
-	for {
-
-		// 讀取 http request 的資訊
-		buf := make([]byte, 1024)
-		n, err := conn.Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				fmt.Println("client disconnetced")
-				return
-			}
-			fmt.Println("read socket failed")
-			return
-		}
-		// 這邊做個 log 比較容易了解情況, 可以看到 http request 的內容
-		data := buf[:n]
-		fmt.Println(string(buf[:n]))
-
-		// 升級連線的核心函式
-		// 其實滿容易理解的, 把 Sec-WebSocket-Key 的值抓出來存到 key 裡面
-		// 再把 key 傳入下一個函式去做編碼加工得到 retKey
-		// 把這個 retKey, 指定為 Sec-WebSocket-Accept 的值回傳給網頁端
-		key := getWebSecKey(data)
-		retKey := getReturnSec(key)
-
-		// 把 response 字串透過 conn 寫回去給 client 端, 完成升級連線
-		// 這邊重點看 response 字串裡面的內容, 格式要完全正確 \r\n 也是一個不能少, 不然連線會失敗
-		// 此 socket 之後就可以用 websocket 的方式 傳送資料(也就是需要按照ws格式編解碼)
-		response := fmt.Sprintf("HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: %s\r\n\r\n", retKey)
-		// 這邊將 response 寫出去, 理論上 web 端的 ws.onopen 應該會監聽到連線成功
-		_, err = conn.Write([]byte(response))
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-}
-
-func getWebSecKey(data []byte) string {
-	// 這邊用 regex 簡單的把 key 值抓出來, 回傳出去
-	pattern := `Sec-WebSocket-Key: ([^\r\n]+)`
-	re := regexp.MustCompile(pattern)
-	match := re.FindStringSubmatch(string(data))
-	return strings.TrimSpace(match[1])
-}
-
-func getReturnSec(webSecSocketkey string) string {
-	// 這邊加個 GUID 做編碼, 編碼完再回傳出去
-	var keyGUID = []byte("258EAFA5-E914-47DA-95CA-C5AB0DC85B11")
-	h := sha1.New()
-	h.Write([]byte(webSecSocketkey))
-	h.Write(keyGUID)
-	secWebSocketAccept := base64.StdEncoding.EncodeToString(h.Sum(nil))
-	return secWebSocketAccept
-}
-
-```
-
-上面的話， 就是 websocket 的 upgrade 升級連線了, 篇幅太長, 下一篇繼續講傳送訊息
-
-## References
-
-1. [build-a-simple-ws-from-scratch-in-ruby](https://www.honeybadger.io/blog/building-a-simple-websockets-server-from-scratch-in-ruby/)
+後端：以前會覺得, 沒畫面甚至無法開始思考功能怎麼設計, 所以就硬著頭皮, 還是先 css/js 把畫面刻出來, 然後再繼續做後端, 常常做到後端的時候精疲力盡, 進度就停滯不前了
